@@ -1,0 +1,971 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Free Throw Basket Lovers</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 50%, #1e3c72 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            position: relative;
+        }
+
+        body::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image: 
+                radial-gradient(circle at 20% 50%, rgba(120, 120, 255, 0.3) 0%, transparent 50%),
+                radial-gradient(circle at 80% 50%, rgba(255, 120, 120, 0.3) 0%, transparent 50%);
+            pointer-events: none;
+        }
+
+        .game-container {
+            width: 100%;
+            max-width: 500px;
+            background: rgba(20, 30, 50, 0.95);
+            border-radius: 20px;
+            padding: 30px 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+            position: relative;
+            backdrop-filter: blur(10px);
+        }
+
+        .title {
+            color: white;
+            text-align: center;
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 15px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .balance-section {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .balance-label {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 5px;
+        }
+
+        .balance-value {
+            color: #00ff88;
+            font-size: 28px;
+            font-weight: bold;
+            text-shadow: 0 0 10px rgba(0, 255, 136, 0.5);
+        }
+
+        .player-selector {
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 25px;
+        }
+
+        .arrow-btn {
+            position: absolute;
+            width: 45px;
+            height: 45px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            font-size: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10;
+            border-radius: 50%;
+        }
+
+        .arrow-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: scale(1.1);
+            border-color: rgba(255, 255, 255, 0.5);
+        }
+
+        .arrow-left {
+            left: -25px;
+        }
+
+        .arrow-right {
+            right: -25px;
+        }
+
+        .arrow-left::before {
+            content: '◀';
+        }
+
+        .arrow-right::before {
+            content: '▶';
+        }
+
+        .player-card {
+            text-align: center;
+            position: relative;
+            width: 100%;
+            max-width: 350px;
+        }
+
+        .player-name {
+            color: white;
+            font-size: 20px;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+
+        .player-image-container {
+            width: 100%;
+            max-width: 320px;
+            height: 320px;
+            margin: 0 auto 20px;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .glow-frame {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border: 3px solid;
+            border-image: linear-gradient(45deg, #ff6b35, #f7931e, #ff6b35) 1;
+            animation: glowPulse 2s ease-in-out infinite;
+        }
+
+        @keyframes glowPulse {
+            0%, 100% {
+                box-shadow: 0 0 20px rgba(255, 107, 53, 0.6);
+            }
+            50% {
+                box-shadow: 0 0 40px rgba(255, 107, 53, 0.9);
+            }
+        }
+
+        .player-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            position: relative;
+            z-index: 2;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 72px;
+            color: white;
+            font-weight: bold;
+        }
+
+        .player-image.placeholder {
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text x="50%" y="50%" font-size="50" fill="white" text-anchor="middle" dominant-baseline="middle">👤</text></svg>') center/cover;
+        }
+
+        .stats-container {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-bottom: 25px;
+        }
+
+        .stat-box {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 12px 25px;
+            border-radius: 25px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+        }
+
+        .stat-label {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 11px;
+            text-transform: uppercase;
+            margin-bottom: 5px;
+        }
+
+        .stat-value {
+            color: white;
+            font-size: 18px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .flag {
+            width: 24px;
+            height: 18px;
+            display: inline-block;
+        }
+
+        .odds-container {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .odds-box {
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-radius: 35px;
+            padding: 15px;
+            display: inline-block;
+            min-width: 220px;
+        }
+
+        .odds-label {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .odds-value {
+            color: #00ff88;
+            font-size: 32px;
+            font-weight: bold;
+            text-shadow: 0 0 20px rgba(0, 255, 136, 0.5);
+        }
+
+        .bet-info {
+            color: rgba(255, 255, 255, 0.7);
+            text-align: center;
+            margin-bottom: 15px;
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .bet-controls {
+            margin-bottom: 20px;
+        }
+
+        .bet-amount-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .bet-label {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 14px;
+        }
+
+        .bet-input {
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            padding: 8px 15px;
+            border-radius: 10px;
+            font-size: 16px;
+            width: 120px;
+            text-align: center;
+            font-weight: bold;
+        }
+
+        .bet-input:focus {
+            outline: none;
+            border-color: #00ff88;
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .quick-bets {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .quick-bet-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            padding: 6px 14px;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 13px;
+        }
+
+        .quick-bet-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .bet-button {
+            width: 180px;
+            height: 55px;
+            margin: 0 auto 15px;
+            display: block;
+            background: linear-gradient(135deg, #00c851, #00ff88);
+            border: none;
+            border-radius: 30px;
+            color: white;
+            font-size: 22px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            box-shadow: 0 4px 20px rgba(0, 255, 136, 0.4);
+        }
+
+        .bet-button::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(
+                45deg,
+                transparent,
+                rgba(255, 255, 255, 0.3),
+                transparent
+            );
+            transform: rotate(45deg);
+            transition: all 0.5s;
+            opacity: 0;
+        }
+
+        .bet-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 30px rgba(0, 255, 136, 0.6);
+        }
+
+        .bet-button:hover::before {
+            animation: shine 0.5s ease;
+        }
+
+        @keyframes shine {
+            to {
+                left: 150%;
+                opacity: 1;
+            }
+        }
+
+        .bet-button:active {
+            transform: translateY(0);
+        }
+
+        .bet-button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            background: linear-gradient(135deg, #666, #888);
+        }
+
+        .footer-info {
+            text-align: center;
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 13px;
+        }
+
+        .rtp {
+            margin-bottom: 5px;
+        }
+
+        .result-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.9);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            backdrop-filter: blur(10px);
+        }
+
+        .result-overlay.active {
+            display: flex;
+        }
+
+        .video-container {
+            position: relative;
+            width: 80%;
+            max-width: 600px;
+            background: #000;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8);
+        }
+
+        .result-video {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        .result-info {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(to top, rgba(0,0,0,0.9), transparent);
+            padding: 30px;
+            text-align: center;
+        }
+
+        .result-title {
+            font-size: 48px;
+            font-weight: bold;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+        }
+
+        .result-title.win {
+            color: #00ff88;
+            text-shadow: 0 0 30px rgba(0, 255, 136, 0.8);
+        }
+
+        .result-title.lose {
+            color: #ff4444;
+            text-shadow: 0 0 30px rgba(255, 68, 68, 0.8);
+        }
+
+        .result-amount {
+            font-size: 32px;
+            color: white;
+            margin-bottom: 20px;
+        }
+
+        .result-close {
+            background: linear-gradient(135deg, #00c851, #00ff88);
+            border: none;
+            padding: 15px 40px;
+            border-radius: 30px;
+            color: white;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .result-close:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 20px rgba(0, 255, 136, 0.5);
+        }
+
+        .fallback-animation {
+            width: 100%;
+            height: 400px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #1e3c72, #2a5298);
+        }
+
+        .basketball-icon {
+            width: 100px;
+            height: 100px;
+            background: linear-gradient(135deg, #ff6b35, #ff8c42);
+            border-radius: 50%;
+            animation: shoot 2s ease-in-out;
+            box-shadow: 0 0 30px rgba(255, 107, 53, 0.8);
+        }
+
+        @keyframes shoot {
+            0% {
+                transform: translate(0, 0) rotate(0deg);
+            }
+            50% {
+                transform: translate(0, -150px) rotate(360deg);
+            }
+            100% {
+                transform: translate(0, 0) rotate(720deg);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <h1 class="title">Free Throw Basket Lovers</h1>
+        
+        <div class="balance-section">
+            <div class="balance-label">Balance</div>
+            <div class="balance-value" id="balance">$5,000</div>
+        </div>
+
+        <div class="player-selector">
+            <button class="arrow-btn arrow-left" id="prevPlayer"></button>
+            <div class="player-card">
+                <div class="player-name" id="playerName">Loading...</div>
+                <div class="player-image-container">
+                    <div class="glow-frame"></div>
+                    <img class="player-image" id="playerImage" src="" alt="Player">
+                </div>
+            </div>
+            <button class="arrow-btn arrow-right" id="nextPlayer"></button>
+        </div>
+
+        <div class="stats-container">
+            <div class="stat-box">
+                <div class="stat-label">Country:</div>
+                <div class="stat-value">
+                    <span id="countryName">...</span>
+                    <span class="flag" id="countryFlag">...</span>
+                </div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-label">FT % Success:</div>
+                <div class="stat-value" id="successRate">...%</div>
+            </div>
+        </div>
+
+        <div class="odds-container">
+            <div class="odds-box">
+                <span class="odds-label">ODDS: </span>
+                <span class="odds-value" id="odds">...</span>
+            </div>
+        </div>
+
+        <div class="bet-info">Increase bet to win more</div>
+
+        <div class="bet-controls">
+            <div class="bet-amount-container">
+                <span class="bet-label">Bet Amount:</span>
+                <input type="number" class="bet-input" id="betAmount" value="100" min="1" max="5000">
+            </div>
+            <div class="quick-bets">
+                <button class="quick-bet-btn" data-amount="10">$10</button>
+                <button class="quick-bet-btn" data-amount="50">$50</button>
+                <button class="quick-bet-btn" data-amount="100">$100</button>
+                <button class="quick-bet-btn" data-amount="500">$500</button>
+                <button class="quick-bet-btn" data-amount="1000">$1000</button>
+            </div>
+        </div>
+
+        <button class="bet-button" id="betButton">BET</button>
+
+        <div class="footer-info">
+            <div class="rtp">RTP = 97%</div>
+        </div>
+    </div>
+
+    <div class="result-overlay" id="resultOverlay">
+        <div class="video-container" id="videoContainer">
+            <!-- Video or fallback animation will be inserted here -->
+        </div>
+    </div>
+
+    <script>
+        // Game configuration
+        const RTP = 0.97; // 97% RTP
+        const HOUSE_EDGE = 1 - RTP;
+
+        // Characters data with updated stats from your description (shuffled order)
+        const characters = [
+            {
+                id: "sleepy-sam-us",
+                name: "Sleepy Sam",
+                countryCode: "US",
+                countryName: "USA",
+                successPct: 30,
+                imageUrl: "player11.jpg",
+                videos: {
+                    make: ["/videos/ss_us_make_1.mp4"],
+                    miss: ["/videos/ss_us_miss_1.mp4"]
+                }
+            },
+            {
+                id: "li-wei-cn",
+                name: "Li Wei",
+                countryCode: "CN",
+                countryName: "China",
+                successPct: 89,
+                imageUrl: "player4.jpg",
+                videos: {
+                    make: ["/videos/lw_cn_make_1.mp4"],
+                    miss: ["/videos/lw_cn_miss_1.mp4"]
+                }
+            },
+            {
+                id: "grandma-jo-us",
+                name: "Grandma Jo",
+                countryCode: "US",
+                countryName: "USA",
+                successPct: 65,
+                imageUrl: "player8.jpg",
+                videos: {
+                    make: ["/videos/gj_us_make_1.mp4"],
+                    miss: ["/videos/gj_us_miss_1.mp4"]
+                }
+            },
+            {
+                id: "michael-james-us",
+                name: "Michael James",
+                countryCode: "US",
+                countryName: "USA",
+                successPct: 92,
+                imageUrl: "player1.jpg", // Replace with actual image path
+                videos: {
+                    make: ["/videos/mj_us_make_1.mp4", "/videos/mj_us_make_2.mp4"],
+                    miss: ["/videos/mj_us_miss_1.mp4"]
+                }
+            },
+            {
+                id: "big-tony-us",
+                name: "Big Tony Romano",
+                countryCode: "US",
+                countryName: "USA",
+                successPct: 70,
+                imageUrl: "player7.jpg",
+                videos: {
+                    make: ["/videos/btr_us_make_1.mp4"],
+                    miss: ["/videos/btr_us_miss_1.mp4"]
+                }
+            },
+            {
+                id: "diego-fernandez-ar",
+                name: "Diego Fernández",
+                countryCode: "AR",
+                countryName: "Argentina",
+                successPct: 90,
+                imageUrl: "player6.jpg",
+                videos: {
+                    make: ["/videos/df_ar_make_1.mp4"],
+                    miss: ["/videos/df_ar_miss_1.mp4"]
+                }
+            },
+            {
+                id: "clown-slammer-us",
+                name: "Clown Slammer",
+                countryCode: "US",
+                countryName: "USA",
+                successPct: 40,
+                imageUrl: "player9.jpg",
+                videos: {
+                    make: ["/videos/cs_us_make_1.mp4"],
+                    miss: ["/videos/cs_us_miss_1.mp4"]
+                }
+            },
+            {
+                id: "nikola-petrovic-rs",
+                name: "Nikola Petrovic",
+                countryCode: "RS",
+                countryName: "Serbia",
+                successPct: 90,
+                imageUrl: "player3.jpg",
+                videos: {
+                    make: ["/videos/np_rs_make_1.mp4"],
+                    miss: ["/videos/np_rs_miss_1.mp4"]
+                }
+            },
+            {
+                id: "bob-office-guy-us",
+                name: "Bob The Office Guy",
+                countryCode: "US",
+                countryName: "USA",
+                successPct: 55,
+                imageUrl: "player10.jpg",
+                videos: {
+                    make: ["/videos/bog_us_make_1.mp4"],
+                    miss: ["/videos/bog_us_miss_1.mp4"]
+                }
+            },
+            {
+                id: "arjun-mehta-in",
+                name: "Arjun Mehta",
+                countryCode: "IN",
+                countryName: "India",
+                successPct: 85,
+                imageUrl: "player5.jpg",
+                videos: {
+                    make: ["/videos/am_in_make_1.mp4"],
+                    miss: ["/videos/am_in_miss_1.mp4"]
+                }
+            },
+            {
+                id: "javier-morales-es",
+                name: "Javier Morales",
+                countryCode: "ES",
+                countryName: "Spain",
+                successPct: 88,
+                imageUrl: "player2.jpg",
+                videos: {
+                    make: ["/videos/jm_es_make_1.mp4"],
+                    miss: ["/videos/jm_es_miss_1.mp4"]
+                }
+            }
+        ];
+
+        // Country flag mapping
+        const countryFlags = {
+            'US': '🇺🇸',
+            'ES': '🇪🇸',
+            'RS': '🇷🇸',
+            'CN': '🇨🇳',
+            'IN': '🇮🇳',
+            'AR': '🇦🇷'
+        };
+
+        // Game state
+        let currentCharacterIndex = 0;
+        let balance = 5000;
+
+        // Stake Engine RNG Simulator
+        class StakeEngine {
+            constructor(rtp) {
+                this.rtp = rtp;
+            }
+
+            generateOutcome(successRate) {
+                const adjustedRate = (successRate / 100) * this.rtp;
+                const random = Math.random();
+                return random < adjustedRate;
+            }
+
+            calculateOdds(successRate) {
+                if (successRate < 0.5) successRate = 0.5;
+                const trueOdds = 100 / successRate;
+                const houseOdds = trueOdds * this.rtp;
+                return Math.max(1.01, parseFloat(houseOdds.toFixed(2)));
+            }
+        }
+
+        const stakeEngine = new StakeEngine(RTP);
+
+        // Initialize game
+        function init() {
+            loadCharacter(currentCharacterIndex);
+            updateBalance();
+            
+            // Event listeners
+            document.getElementById('prevPlayer').addEventListener('click', () => switchCharacter(-1));
+            document.getElementById('nextPlayer').addEventListener('click', () => switchCharacter(1));
+            document.getElementById('betButton').addEventListener('click', placeBet);
+            
+            // Quick bet buttons
+            document.querySelectorAll('.quick-bet-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    document.getElementById('betAmount').value = btn.dataset.amount;
+                });
+            });
+
+            // Bet amount validation
+            document.getElementById('betAmount').addEventListener('input', (e) => {
+                const value = parseInt(e.target.value);
+                if (value > balance) {
+                    e.target.value = balance;
+                }
+                if (value < 1) {
+                    e.target.value = 1;
+                }
+            });
+        }
+
+        // Load character data
+        function loadCharacter(index) {
+            const character = characters[index];
+            
+            document.getElementById('playerName').textContent = character.name;
+            
+            // Handle image display
+            const playerImg = document.getElementById('playerImage');
+            const container = playerImg.parentElement;
+            
+            // Remove any existing placeholder divs
+            const existingPlaceholder = container.querySelector('.player-initials');
+            if (existingPlaceholder) {
+                existingPlaceholder.remove();
+            }
+            
+            // Reset image display
+            playerImg.style.display = 'block';
+            
+            if (character.imageUrl) {
+                playerImg.src = character.imageUrl;
+                playerImg.onerror = function() {
+                    // If image fails to load, show initials instead
+                    const initials = character.name.split(' ').map(n => n[0]).join('');
+                    this.style.display = 'none';
+                    
+                    // Create or update placeholder
+                    let placeholder = container.querySelector('.player-initials');
+                    if (!placeholder) {
+                        placeholder = document.createElement('div');
+                        placeholder.className = 'player-initials player-image';
+                        placeholder.style.fontSize = '72px';
+                        placeholder.style.width = '100%';
+                        placeholder.style.height = '100%';
+                        placeholder.style.position = 'absolute';
+                        placeholder.style.top = '0';
+                        placeholder.style.left = '0';
+                        container.appendChild(placeholder);
+                    }
+                    placeholder.textContent = initials;
+                };
+            } else {
+                // No image URL, show initials
+                const initials = character.name.split(' ').map(n => n[0]).join('');
+                playerImg.style.display = 'none';
+                
+                let placeholder = container.querySelector('.player-initials');
+                if (!placeholder) {
+                    placeholder = document.createElement('div');
+                    placeholder.className = 'player-initials player-image';
+                    placeholder.style.fontSize = '72px';
+                    placeholder.style.width = '100%';
+                    placeholder.style.height = '100%';
+                    placeholder.style.position = 'absolute';
+                    placeholder.style.top = '0';
+                    placeholder.style.left = '0';
+                    container.appendChild(placeholder);
+                }
+                placeholder.textContent = initials;
+            }
+            
+            document.getElementById('countryName').textContent = character.countryName;
+            document.getElementById('countryFlag').textContent = countryFlags[character.countryCode] || '🏴';
+            document.getElementById('successRate').textContent = character.successPct + '%';
+            
+            // Calculate and display odds based on the document specs
+            const odds = getOddsForCharacter(character.id);
+            document.getElementById('odds').textContent = odds;
+        }
+
+        // Get predefined odds from document
+        function getOddsForCharacter(id) {
+            const oddsMap = {
+                "michael-james-us": "1.05",
+                "javier-morales-es": "1.10",
+                "nikola-petrovic-rs": "1.08",
+                "li-wei-cn": "1.09",
+                "arjun-mehta-in": "1.14",
+                "diego-fernandez-ar": "1.08",
+                "big-tony-us": "1.39",
+                "grandma-jo-us": "1.49",
+                "clown-slammer-us": "2.43",
+                "bob-office-guy-us": "1.76",
+                "sleepy-sam-us": "3.23"
+            };
+            return oddsMap[id] || "1.50";
+        }
+
+        // Switch character
+        function switchCharacter(direction) {
+            currentCharacterIndex += direction;
+            
+            if (currentCharacterIndex < 0) {
+                currentCharacterIndex = characters.length - 1;
+            } else if (currentCharacterIndex >= characters.length) {
+                currentCharacterIndex = 0;
+            }
+            
+            loadCharacter(currentCharacterIndex);
+        }
+
+        // Update balance display
+        function updateBalance() {
+            document.getElementById('balance').textContent = '$' + balance.toLocaleString();
+            document.getElementById('betButton').disabled = balance <= 0;
+        }
+
+        // Place bet
+        function placeBet() {
+            const betAmount = parseInt(document.getElementById('betAmount').value);
+            
+            if (betAmount > balance) {
+                alert('Insufficient balance!');
+                return;
+            }
+            
+            if (betAmount < 1) {
+                alert('Minimum bet is $1');
+                return;
+            }
+            
+            balance -= betAmount;
+            updateBalance();
+            
+            document.getElementById('betButton').disabled = true;
+            
+            const character = characters[currentCharacterIndex];
+            const isSuccess = stakeEngine.generateOutcome(character.successPct);
+            const odds = parseFloat(document.getElementById('odds').textContent);
+            
+            let winAmount = 0;
+            if (isSuccess) {
+                winAmount = Math.floor(betAmount * odds);
+                balance += winAmount;
+            }
+            
+            showResult(isSuccess, winAmount - betAmount, betAmount, character);
+            updateBalance();
+        }
+
+        // Show result with video or fallback animation
+        function showResult(isWin, netAmount, betAmount, character) {
+            const overlay = document.getElementById('resultOverlay');
+            const container = document.getElementById('videoContainer');
+            
+            container.innerHTML = '';
+            
+            const videos = isWin ? character.videos.make : character.videos.miss;
+            const randomVideo = videos[Math.floor(Math.random() * videos.length)];
+            
+            // Use fallback animation for demo
+            const fallbackDiv = document.createElement('div');
+            fallbackDiv.className = 'fallback-animation';
+            fallbackDiv.innerHTML = '<div class="basketball-icon"></div>';
+            container.appendChild(fallbackDiv);
+            
+            const resultInfo = document.createElement('div');
+            resultInfo.className = 'result-info';
+            resultInfo.innerHTML = `
+                <div class="result-title ${isWin ? 'win' : 'lose'}">
+                    ${isWin ? 'SCORED!' : 'MISSED!'}
+                </div>
+                <div class="result-amount" style="color: ${isWin ? '#00ff88' : '#ff4444'}">
+                    ${isWin ? '+' : '-'}$${Math.abs(isWin ? netAmount : betAmount).toLocaleString()}
+                </div>
+                <button class="result-close" onclick="closeResult()">CONTINUE</button>
+            `;
+            container.appendChild(resultInfo);
+            
+            overlay.classList.add('active');
+            
+            setTimeout(() => closeResult(), 3000);
+        }
+
+        // Close result overlay
+        function closeResult() {
+            document.getElementById('resultOverlay').classList.remove('active');
+            document.getElementById('betButton').disabled = balance <= 0;
+        }
+
+        // Initialize on load
+        window.onload = init;
+    </script>
+</body>
+</html>
