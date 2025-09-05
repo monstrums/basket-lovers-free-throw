@@ -1,0 +1,6 @@
+[submodule "external/math-sdk"]
+	path = external/math-sdk
+	url = https://github.com/StakeEngine/math-sdk
+[submodule "external/web-sdk"]
+	path = external/web-sdk
+	url = https://github.com/StakeEngine/web-sdk
